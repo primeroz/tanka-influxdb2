@@ -1,0 +1,3 @@
+[submodule "build-harness-extensions"]
+	path = build-harness-extensions
+	url = https://github.com/mintel/build-harness-extensions.git

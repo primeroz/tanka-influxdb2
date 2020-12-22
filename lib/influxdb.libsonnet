@@ -48,7 +48,10 @@
       $._config.labels
     ) +
     ss.metadata.withNamespace('influxdb') +
-    ss.metadata.withLabelsMixin($._config.labels),
+    ss.metadata.withLabelsMixin($._config.labels) +
+    ss.mixin.spec.withServiceName('influxdb'),
+  // statefulSet.mixin.spec.template.spec.securityContext.withRunAsUser(0) +
+  // resources
 
   influxdb_service: $.util.serviceFor($.influxdb_statefulset, $._config.influxdb.service_ignored_labels) +
                     $.core.v1.service.spec.withType('ClusterIP'),

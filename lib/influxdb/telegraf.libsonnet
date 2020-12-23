@@ -17,6 +17,7 @@
   },
 
   local ds = $.apps.v1.daemonSet,
+  local deployment = $.apps.v1.deployment,
   local container = $.core.v1.container,
   local volumeMount = $.core.v1.volumeMount,
   local volume = $.core.v1.volume,
@@ -24,7 +25,7 @@
   local secret = $.core.v1.secret,
   local policyRule = $.rbac.v1.policyRule,
 
-  telegraf_rbac: $.util.rbac('telegraf', [
+  telegraf_ds_rbac: $.util.rbac('telegraf-ds', [
     policyRule.withApiGroups(['']) +
     policyRule.withResources(['nodes/stats', 'nodes/metrics', 'nodes/proxy']) +
     policyRule.withVerbs(['get']),
@@ -50,14 +51,14 @@
       influx_token: $._config.telegraf.influx_token,
     }),
 
-  telegraf_config_map:
-    configMap.new('telegraf') +
+  telegraf_ds_config_map:
+    configMap.new('telegraf-ds') +
     configMap.metadata.withNamespace($._config.namespace) +
     configMap.withData({
       'telegraf.conf': importstr 'configs/telegraf.conf',
     }),
 
-  telegraf_container::
+  telegraf_ds_container::
     container.new('telegraf', $._images.telegraf) +
     container.withEnvMixin([
       $.core.v1.envVar.fromFieldPath('HOSTNAME', 'spec.nodeName'),
@@ -75,24 +76,25 @@
       //volumeMount.new('utmp', '/var/run/utmp', true),
       //volumeMount.new('docker-socket', '/var/run/docker.sock', true),
     ]),
+  // Probes
 
   telegraf_daemonset:
     ds.new(
-      'telegraf',
-      $.telegraf_container,
-      $._config.telegraf.labels
+      'telegraf-ds',
+      $.telegraf_ds_container,
+      $._config.telegraf.labels { scope: 'kubelet' },
     ) +
     ds.metadata.withNamespace($._config.namespace) +
-    ds.metadata.withLabelsMixin($._config.telegraf.labels) +
+    ds.metadata.withLabelsMixin($._config.telegraf.labels { scope: 'kubelet' }) +
     ds.spec.template.spec.withVolumesMixin([
       volume.fromHostPath('sys', '/sys'),
       volume.fromHostPath('proc', '/proc'),
       //volume.fromHostPath('docker-socket', '/var/run/docker.sock'),
       //volume.fromHostPath('utmp', '/var/run/utmp'),
     ]) +
-    $.util.configMapVolumeMount($.telegraf_config_map, '/etc/telegraf') +
+    $.util.configMapVolumeMount($.telegraf_ds_config_map, '/etc/telegraf') +
     //ds.spec.template.spec.withHostNetwork(true) +
-    ds.spec.template.spec.withServiceAccountName('telegraf') +
+    ds.spec.template.spec.withServiceAccountName($.telegraf_ds_rbac.service_account.metadata.name) +
     ds.spec.template.spec.withTerminationGracePeriodSeconds(30),
   // statefulSet.mixin.spec.template.spec.securityContext.withRunAsUser(0) +
 

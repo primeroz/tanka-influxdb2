@@ -1,5 +1,5 @@
 (import 'influxdb/influxdb.libsonnet') +
-(import 'influxdb/telegraf.libsonnet') +
+//(import 'influxdb/telegraf.libsonnet') +
 {
   local ns = $.core.v1.namespace,
 

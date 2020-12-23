@@ -1,0 +1,3 @@
+(import 'influxdb/telegraf.libsonnet') +
+{
+}

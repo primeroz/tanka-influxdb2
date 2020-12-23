@@ -1,0 +1,14 @@
+{
+  "apiVersion": "tanka.dev/v1alpha1",
+  "kind": "Environment",
+  "metadata": {
+    "name": "environments/default"
+  },
+  "spec": {
+    "apiServer": "https://0.0.0.0:6443",
+    "namespace": "influxdb",
+    "injectLabels": true,
+    "resourceDefaults": {},
+    "expectVersions": {}
+  }
+}

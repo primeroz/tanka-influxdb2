@@ -2,7 +2,8 @@
   "apiVersion": "tanka.dev/v1alpha1",
   "kind": "Environment",
   "metadata": {
-    "name": "environments/influxdb"
+    "name": "environments/influxdb",
+    "namespace": "environments/influxdb"
   },
   "spec": {
     "apiServer": "https://0.0.0.0:6443",

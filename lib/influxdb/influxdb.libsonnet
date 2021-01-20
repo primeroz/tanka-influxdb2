@@ -25,6 +25,7 @@
 
   influxdb_pvc::
     pvc.new('influx-data') +
+    pvc.mixin.metadata.withLabelsMixin({ owner: 'someone' }) +
     pvc.mixin.spec.resources.withRequests({ storage: $._config.influxdb.statefulset_disk }) +
     pvc.mixin.spec.withAccessModes(['ReadWriteOnce']),
 
